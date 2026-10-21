@@ -1,6 +1,6 @@
 {
   "name": "mcp-scale",
-  "version": "0.1.1-beta.0",
+  "version": "0.1.1",
   "description": "Weigh your MCP setup: see how many context-window tokens every MCP server costs you, across Claude Code, Cursor, VS Code, Windsurf, Codex and more.",
   "homepage": "https://github.com/Aliraza777/mcp-scale#readme",
   "repository": {
