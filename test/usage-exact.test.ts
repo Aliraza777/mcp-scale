@@ -2,7 +2,12 @@ import { utimesSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { claudeCodeUsage, normalizeServerName } from "../src/analyze/usage.js";
 import { applyExactCounts } from "../src/scan.js";
-import { type CountTokens, estimateToolTokens, exactServerTokens } from "../src/tokens.js";
+import {
+  type CountTokens,
+  estimateTokens,
+  estimateToolTokens,
+  exactServerTokens,
+} from "../src/tokens.js";
 import { okProbe, tempEnv, tool, write } from "./helpers.js";
 
 const now = new Date().toISOString();
@@ -76,5 +81,19 @@ describe("exact counting", () => {
     const total = probe.tools.reduce((n, t) => n + t.tokens, 0);
     expect(total).toBeGreaterThan(0);
     expect(probe.tools[0]!.tokens).toBeGreaterThan(probe.tools[1]!.tokens);
+  });
+});
+
+describe("estimateTokens", () => {
+  it("stays fast and close on long runs without whitespace (base64, minified data)", () => {
+    const blob = Buffer.from("a".repeat(30_000)).toString("base64"); // 40k chars, no spaces
+    const start = performance.now();
+    const n = estimateTokens(`data:image/png;base64,${blob}`);
+    expect(performance.now() - start).toBeLessThan(3_000);
+    expect(n).toBeGreaterThan(blob.length / 8);
+  });
+
+  it("matches plain encoding for normal text", () => {
+    expect(estimateTokens("hello world")).toBe(2);
   });
 });

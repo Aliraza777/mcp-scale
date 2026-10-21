@@ -20,10 +20,27 @@ export function serializeTool(tool: ToolDef): string {
 
 let encoder: Tiktoken | undefined;
 
-/** Offline estimate with o200k_base. Claude's tokenizer typically counts ~15-20% more. */
+/** Unbroken runs longer than this are encoded in pieces (see estimateTokens). */
+const MAX_RUN = 256;
+const LONG_RUN = new RegExp(`\\S{${MAX_RUN + 1},}`, "g");
+
+/**
+ * Offline o200k_base estimate. js-tiktoken's BPE is quadratic on long runs without whitespace
+ * (40k chars of base64 takes over a minute), so such runs are encoded in 256-char pieces, which
+ * changes the count by at most one token per piece.
+ */
 export function estimateTokens(text: string): number {
   encoder ??= getEncoding("o200k_base");
-  return encoder.encode(text).length;
+  const enc = encoder;
+  let count = 0;
+  let last = 0;
+  for (const m of text.matchAll(LONG_RUN)) {
+    count += enc.encode(text.slice(last, m.index)).length;
+    for (let i = 0; i < m[0].length; i += MAX_RUN)
+      count += enc.encode(m[0].slice(i, i + MAX_RUN)).length;
+    last = m.index + m[0].length;
+  }
+  return count + enc.encode(text.slice(last)).length;
 }
 
 export const estimateToolTokens = (tool: ToolDef) => estimateTokens(serializeTool(tool));
