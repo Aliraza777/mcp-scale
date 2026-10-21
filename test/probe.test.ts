@@ -44,7 +44,11 @@ describe("stdio probe", () => {
     const r = await probe(stdioFake({ args }), { timeoutMs: 2_000 });
     expect(r.status).toBe("timeout");
     await new Promise((res) => setTimeout(res, 500));
-    const ps = execSync("ps ax -o command").toString();
+    const ps = execSync(
+      process.platform === "win32"
+        ? 'powershell -NoProfile -Command "Get-CimInstance Win32_Process | ForEach-Object { $_.CommandLine }"'
+        : "ps ax -o command",
+    ).toString();
     expect(ps).not.toContain(`--marker-${process.pid}`);
   }, 30_000);
 

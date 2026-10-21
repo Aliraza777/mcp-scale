@@ -1,3 +1,4 @@
+import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { discover } from "../src/clients/index.js";
 import { stripJsonComments } from "../src/clients/util.js";
@@ -237,7 +238,8 @@ enabled = false
       name: "Filesystem",
       scope: "extension",
       command: "node",
-      args: [`${base}/Claude Extensions/ext.fs/server/index.js`, "/tmp"],
+      // ${__dirname} becomes the OS-native extension dir; the rest of the arg is kept verbatim.
+      args: [`${join(base, "Claude Extensions", "ext.fs")}/server/index.js`, "/tmp"],
       env: { TOKEN: "abc" },
       disabled: true,
     });
