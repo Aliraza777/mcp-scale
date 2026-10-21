@@ -77,11 +77,15 @@ export async function scan(env: Env, opts: ScanOptions = {}): Promise<Report> {
   const active = servers.filter((s) => !s.disabled && !s.unsupported);
 
   let doProbe = !opts.static && active.length > 0;
+  let skipReason: Report["skipReason"] = opts.static ? "static" : undefined;
   if (doProbe && !opts.yes) {
-    if (process.stdin.isTTY) doProbe = await confirmProbe(active);
-    else {
+    if (process.stdin.isTTY) {
+      doProbe = await confirmProbe(active);
+      if (!doProbe) skipReason = "declined";
+    } else {
       log(pc.yellow("Not a TTY, so running a static scan. Pass --yes to connect to servers."));
       doProbe = false;
+      skipReason = "no-tty";
     }
   }
 
@@ -118,7 +122,7 @@ export async function scan(env: Env, opts: ScanOptions = {}): Promise<Report> {
   const hasClaudeCode = servers.some((s) => s.client === "claude-code");
   const usage = hasClaudeCode ? await claudeCodeUsage(env.home).catch(() => undefined) : undefined;
   const claudeVersion = hasClaudeCode ? detectClaudeVersion() : undefined;
-  return analyze({
+  const report = analyze({
     env,
     servers,
     probes,
@@ -126,4 +130,6 @@ export async function scan(env: Env, opts: ScanOptions = {}): Promise<Report> {
     tokenizer,
     loadOptions: { family: opts.tokenizer ?? "auto", claudeVersion },
   });
+  if (!report.probed) report.skipReason = skipReason;
+  return report;
 }

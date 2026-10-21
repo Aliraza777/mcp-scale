@@ -109,6 +109,8 @@ export interface Report {
   cwd: string;
   tokenizer: string;
   probed: boolean;
+  /** Why servers were not connected to, when `probed` is false. */
+  skipReason?: "static" | "declined" | "no-tty";
   clients: ClientReport[];
   findings: Finding[];
 }

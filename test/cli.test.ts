@@ -49,7 +49,7 @@ describe("cli", () => {
     const r = cli(env, []);
     expect(r.code).toBe(0);
     expect(r.err).toContain("Not a TTY");
-    expect(r.out).toContain("Configs only");
+    expect(r.out).toContain("no terminal to ask for permission");
   }, 60_000);
 
   it("connects with --yes and counts tokens", () => {

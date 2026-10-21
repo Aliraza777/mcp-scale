@@ -43,6 +43,14 @@ function serverLine(r: ServerReport, max: number, nameWidth: number, deferred: b
   return `  ${name} ${scope} ${tools} ${tok} tok  ${bar(deferred ? r.effectiveTokens : r.tokens, max)}${extra}${usage}`;
 }
 
+const SKIPPED: Record<NonNullable<Report["skipReason"]>, string> = {
+  static: "Configs only (--static). Run without --static to connect to servers and count tokens.",
+  declined:
+    "Configs only: you chose not to connect, so no tokens were counted. Answer y at the prompt, or run with --yes.",
+  "no-tty":
+    "Configs only: no terminal to ask for permission. Run with --yes to connect to servers and count tokens.",
+};
+
 const ICON: Record<Finding["severity"], string> = {
   error: pc.red("✖"),
   warn: pc.yellow("⚠"),
@@ -117,11 +125,7 @@ export function renderTerminal(report: Report): string {
       "",
       `${pc.green("→")} Acting on these findings saves about ${pc.bold(fmt(savings))} tokens per session. Scope servers per project with ${pc.cyan("mcp-scale profile")}.`,
     );
-  if (!report.probed)
-    lines.push(
-      "",
-      pc.dim("Configs only. Run without --static to connect to servers and count tokens."),
-    );
+  if (!report.probed) lines.push("", pc.dim(SKIPPED[report.skipReason ?? "static"]));
   else if (!report.tokenizer.startsWith("exact"))
     lines.push(
       "",

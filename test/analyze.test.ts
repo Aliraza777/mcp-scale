@@ -279,7 +279,7 @@ describe("renderers", () => {
     const out = renderTerminal(r) + renderJson(r) + renderMarkdown(r);
     expect(out).not.toContain("ghp_FAKEfakeFAKEfakeFAKEfake000000");
     expect(out).not.toContain("BSAabcdefghijklmnopqrstu");
-    expect(out).toContain("Configs only");
+    expect(out).toContain("Configs only (--static)");
   });
 
   it("shows unmeasured servers in the headline and statuses per row", () => {
