@@ -50,4 +50,12 @@ jobs:
           npm publish --access public --tag dryrun --dry-run
       - name: Publish
         if: github.event_name == 'release' || !inputs.dry-run
-        run: npm publish --access public
+        # Prereleases (1.2.3-beta.0, or a GitHub release marked pre-release) go to the `next` tag so
+        # `npx mcp-scale` keeps installing the latest stable version.
+        run: |
+          version="$(node -p "require('./package.json').version")"
+          if [[ "$version" == *-* || "${{ github.event.release.prerelease }}" == "true" ]]; then
+            npm publish --access public --tag next
+          else
+            npm publish --access public
+          fi
