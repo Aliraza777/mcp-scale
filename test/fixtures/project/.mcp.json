@@ -1,0 +1,6 @@
+{
+  "mcpServers": {
+    "playwright": { "command": "npx", "args": ["@playwright/mcp@latest"] },
+    "sentry": { "type": "sse", "url": "https://mcp.sentry.dev/sse" }
+  }
+}

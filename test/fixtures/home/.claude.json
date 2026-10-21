@@ -1,0 +1,21 @@
+{
+  "mcpServers": {
+    "github": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-github"],
+      "env": { "GITHUB_TOKEN": "ghp_FAKEfakeFAKEfakeFAKEfake000000" }
+    },
+    "linear": {
+      "type": "http",
+      "url": "https://mcp.linear.app/mcp",
+      "headers": { "Authorization": "Bearer ${LINEAR_TOKEN}" }
+    }
+  },
+  "projects": {
+    "/work/app": {
+      "mcpServers": { "postgres": { "command": "uvx", "args": ["mcp-server-postgres@1.2.0"] } },
+      "disabledMcpjsonServers": ["playwright"]
+    }
+  }
+}

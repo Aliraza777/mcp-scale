@@ -1,0 +1,6 @@
+{
+  // VS Code allows comments and trailing commas
+  "servers": {
+    "fs": { "type": "stdio", "command": "npx", "args": ["-y", "@modelcontextprotocol/server-filesystem@2025.8.21", "/"], },
+  },
+}

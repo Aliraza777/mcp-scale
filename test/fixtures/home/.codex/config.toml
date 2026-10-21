@@ -1,0 +1,8 @@
+model = "gpt-5"
+
+[mcp_servers.context7]
+command = "npx"
+args = ["-y", "@upstash/context7-mcp@1.0.0"]
+
+[mcp_servers.context7.env]
+DEBUG = "1"
