@@ -125,6 +125,20 @@ npm run dev -- --static
 npm run build
 ```
 
+## Releasing
+
+Releases publish from GitHub Actions with [npm Trusted Publishing](https://docs.npmjs.com/trusted-publishers). No npm token is stored anywhere, and every version gets a signed provenance statement linking it to the commit and workflow run that built it.
+
+```bash
+npm version patch                       # or minor / major: bumps package.json, commits, tags vX.Y.Z
+git push --follow-tags
+gh release create "v$(node -p "require('./package.json').version")" --generate-notes
+```
+
+Publishing the GitHub release runs [`release.yml`](.github/workflows/release.yml). It checks that the tag matches `package.json`, runs lint, typecheck, tests and build, then runs `npm publish`. To rehearse without publishing, run the **Release** workflow manually from the Actions tab with "dry run" checked.
+
+One-time setup (already done for this package): `npx npm@11.15.0 trust github mcp-scale --file release.yml --repo Aliraza777/mcp-scale --allow-publish`. Then, in the package settings on npmjs.com under **Publishing access**, choose "Require two-factor authentication and disallow tokens".
+
 ## License
 
 MIT

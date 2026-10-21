@@ -1,24 +1,53 @@
 name: Release
+
+# Publishes to npm with Trusted Publishing (OIDC): no npm token is stored in GitHub. npm must
+# trust this exact file (release.yml in Aliraza777/mcp-scale), see "Releasing" in the README.
 on:
   release:
     types: [published]
+  workflow_dispatch:
+    inputs:
+      dry-run:
+        description: "Run every step but only `npm publish --dry-run`"
+        type: boolean
+        default: true
 
 permissions:
   contents: read
-  id-token: write # npm provenance
+  id-token: write # OIDC token for npm Trusted Publishing and provenance
 
 jobs:
   publish:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest # Trusted Publishing needs a GitHub-hosted runner
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: 24 # Trusted Publishing needs Node >= 22.14
           registry-url: https://registry.npmjs.org
+      - name: Use an npm that supports Trusted Publishing (>= 11.5.1)
+        run: npm install -g npm@11.15.0 && npm --version
+      - name: Check the release tag matches package.json
+        if: github.event_name == 'release'
+        run: |
+          tag="${GITHUB_REF_NAME#v}"
+          version="$(node -p "require('./package.json').version")"
+          if [ "$tag" != "$version" ]; then
+            echo "::error::Release tag v$tag does not match package.json version $version"
+            exit 1
+          fi
       - run: npm ci
+      - run: npm run lint
+      - run: npm run typecheck
       - run: npm test
       - run: npm run build
-      - run: npm publish --provenance --access public
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - run: node dist/cli.js --version
+      - name: Publish (dry run)
+        if: github.event_name == 'workflow_dispatch' && inputs.dry-run
+        # npm refuses even a dry run of an already-published version, so use a throwaway prerelease.
+        run: |
+          npm version prerelease --preid "dryrun.${GITHUB_RUN_ID}" --no-git-tag-version
+          npm publish --access public --tag dryrun --dry-run
+      - name: Publish
+        if: github.event_name == 'release' || !inputs.dry-run
+        run: npm publish --access public
