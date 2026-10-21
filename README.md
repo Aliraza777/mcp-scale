@@ -1,5 +1,7 @@
 # mcp-scale
 
+[![CI](https://github.com/Aliraza777/mcp-scale/actions/workflows/ci.yml/badge.svg)](https://github.com/Aliraza777/mcp-scale/actions/workflows/ci.yml) [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+
 **Weigh your MCP setup.** See how many context-window tokens each MCP server costs you before you type a single word, in every AI coding client on your machine.
 
 ```
