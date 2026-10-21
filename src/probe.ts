@@ -11,6 +11,7 @@ import type { Transport } from "@modelcontextprotocol/sdk/shared/transport.js";
 import { ElicitRequestSchema, ListRootsRequestSchema } from "@modelcontextprotocol/sdk/types.js";
 import { estimateToolTokens } from "./tokens.js";
 import type { ProbeResult, ProbeStatus, ServerConfig, ToolInfo } from "./types.js";
+import { VERSION } from "./version.js";
 
 /** Same server configured in several clients is only started once. */
 export function configKey(s: ServerConfig): string {
@@ -172,7 +173,7 @@ const looksLikeSseOnly = (e: unknown) => {
  */
 function createClient(ctx: VarContext): Client {
   const client = new Client(
-    { name: "mcp-scale", version: "0.1.0" },
+    { name: "mcp-scale", version: VERSION },
     { capabilities: { roots: { listChanged: false }, elicitation: {} } },
   );
   client.setRequestHandler(ListRootsRequestSchema, async () => ({

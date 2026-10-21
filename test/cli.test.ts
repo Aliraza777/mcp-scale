@@ -28,6 +28,11 @@ function cli(env: ReturnType<typeof tempEnv>, args: string[]) {
 const fakeEntry = { command: process.execPath, args: ["--import", TSX, FAKE_SERVER] };
 
 describe("cli", () => {
+  it("reports the version from package.json", () => {
+    const pkg = JSON.parse(readFileSync(new URL("../package.json", import.meta.url), "utf8"));
+    expect(cli(tempEnv({ empty: true }), ["--version"]).out.trim()).toBe(pkg.version);
+  }, 60_000);
+
   it("prints a static JSON report and exits 0", () => {
     const env = tempEnv({ empty: true });
     write(env, "~/.cursor/mcp.json", { mcpServers: { fake: fakeEntry } });

@@ -16,8 +16,8 @@ import { renderTerminal } from "./report/terminal.js";
 import { scan } from "./scan.js";
 import { estimateTokens } from "./tokens.js";
 import type { ClientId } from "./types.js";
+import { VERSION } from "./version.js";
 
-const VERSION = "0.1.0";
 const clientIds = Object.keys(CLIENTS) as ClientId[];
 const clientOption = () =>
   new Option("-c, --client <clients...>", "only these clients").choices(clientIds);
